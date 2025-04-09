@@ -366,6 +366,9 @@ namespace Decompiler
         private void CheckDupForInstruction()
         {
             var off = 0;
+            var dup = new Instruction(Instruction.MapOpcode(CodeBlock[Offset]), Offset);
+            AddInstruction(Offset, dup);
+
         Start:
             off += 1;
             if (Instruction.MapOpcode(CodeBlock[Offset + off]) == Opcode.NOP)
@@ -378,6 +381,7 @@ namespace Decompiler
                 var jz = new Instruction(Instruction.MapOpcode(CodeBlock[Offset + off]), CodeBlock.GetRange(Offset + off + 1, 2), Offset + off);
                 jz.NopInstruction();
                 AddInstruction(Offset + off, jz);
+                dup.NopInstruction();
                 Offset = Offset + off + 2;
                 return;
             }
@@ -389,8 +393,6 @@ namespace Decompiler
                 goto Start;
             }
 
-            // TODO: what if we came from a nop here?
-            AddInstruction(Offset, new Instruction(Instruction.MapOpcode(CodeBlock[Offset]), Offset));
             return;
         }
 
