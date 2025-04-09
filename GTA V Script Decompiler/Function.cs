@@ -362,34 +362,35 @@ namespace Decompiler
         /// if it is, dont add it (Rockstars way of doing and/or conditionals)
         /// </summary>
         /// <remarks>Do we really need this?</remarks>
+        /// TODO: if I ever come back to this, this is going to be the first thing I rewrite
         private void CheckDupForInstruction()
         {
-            //May need refining, but works fine for rockstars code
             var off = 0;
         Start:
             off += 1;
             if (Instruction.MapOpcode(CodeBlock[Offset + off]) == Opcode.NOP)
             {
-                Instructions.Add(new Instruction(Instruction.MapOpcode(CodeBlock[Offset + off]), Offset)); // add nop so it shows up in diassembler
+                AddInstruction(Offset + off, new Instruction(Instruction.MapOpcode(CodeBlock[Offset + off]), Offset + off)); // add nop so it shows up in diassembler
                 goto Start;
             }
             if (Instruction.MapOpcode(CodeBlock[Offset + off]) == Opcode.JZ)
             {
-                var dup = new Instruction(Instruction.MapOpcode(CodeBlock[Offset]), Offset);
-                dup.NopInstruction();
-                Instructions.Add(dup);
+                var jz = new Instruction(Instruction.MapOpcode(CodeBlock[Offset + off]), CodeBlock.GetRange(Offset + off + 1, 2), Offset + off);
+                jz.NopInstruction();
+                AddInstruction(Offset + off, jz);
                 Offset = Offset + off + 2;
                 return;
             }
             if (Instruction.MapOpcode(CodeBlock[Offset + off]) == Opcode.INOT)
             {
-                var inot = new Instruction(Instruction.MapOpcode(CodeBlock[Offset]), Offset);
+                var inot = new Instruction(Instruction.MapOpcode(CodeBlock[Offset + off]), Offset + off);
                 inot.NopInstruction();
-                Instructions.Add(inot);
+                AddInstruction(Offset + off, inot);
                 goto Start;
             }
 
-            Instructions.Add(new Instruction(Instruction.MapOpcode(CodeBlock[Offset]), Offset));
+            // TODO: what if we came from a nop here?
+            AddInstruction(Offset, new Instruction(Instruction.MapOpcode(CodeBlock[Offset]), Offset));
             return;
         }
 
