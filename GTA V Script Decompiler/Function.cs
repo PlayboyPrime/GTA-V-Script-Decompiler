@@ -366,17 +366,26 @@ namespace Decompiler
         {
             //May need refining, but works fine for rockstars code
             var off = 0;
-Start:
+        Start:
             off += 1;
             if (Instruction.MapOpcode(CodeBlock[Offset + off]) == Opcode.NOP)
+            {
+                Instructions.Add(new Instruction(Instruction.MapOpcode(CodeBlock[Offset + off]), Offset)); // add nop so it shows up in diassembler
                 goto Start;
+            }
             if (Instruction.MapOpcode(CodeBlock[Offset + off]) == Opcode.JZ)
             {
+                var dup = new Instruction(Instruction.MapOpcode(CodeBlock[Offset]), Offset);
+                dup.NopInstruction();
+                Instructions.Add(dup);
                 Offset = Offset + off + 2;
                 return;
             }
             if (Instruction.MapOpcode(CodeBlock[Offset + off]) == Opcode.INOT)
             {
+                var inot = new Instruction(Instruction.MapOpcode(CodeBlock[Offset]), Offset);
+                inot.NopInstruction();
+                Instructions.Add(inot);
                 goto Start;
             }
 
