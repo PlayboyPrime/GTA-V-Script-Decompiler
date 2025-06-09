@@ -363,6 +363,7 @@ namespace Decompiler
         /// </summary>
         /// <remarks>Do we really need this?</remarks>
         /// TODO: if I ever come back to this, this is going to be the first thing I rewrite
+        /// Of course this broke again. Idk what to do with this anymore
         private void CheckDupForInstruction()
         {
             var off = 0;
@@ -392,6 +393,9 @@ namespace Decompiler
                 AddInstruction(Offset + off, inot);
                 goto Start;
             }
+
+            if (off != 1)
+                Offset += (off - 1);
 
             return;
         }
